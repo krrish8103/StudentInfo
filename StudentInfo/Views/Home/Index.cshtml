@@ -1,0 +1,117 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div id="layoutAuthentication">
+    <div id="layoutAuthentication_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="card shadow-lg border-0 rounded-lg mt-2">
+                            <div class="card-header"><h3 class="text-center font-weight-light">Student Information</h3></div>
+                            <div class="card-body">
+                                <div id="divError" style="display:none" class="alert alert-danger" role="alert">
+                                    Something went wrong! Please try again.
+                                </div>
+                                <div id="divSuccess" style="display:none" class="alert alert-success" role="alert">
+                                    Data Saved successfully. Here is the details
+                                    <p>MasterScheduleId is <span id="spanMasterScheduleId"></span></p>
+                                    <p>StudentScheduleId is <span id="spanMasterScheduleId"></span></p>
+                                </div>
+                                <form>
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="txtStudentId">Student ID</label>
+                                        <input class="form-control py-4" id="txtStudentId" type="text" placeholder="Enter Student ID" required/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="txtProvider">Provider</label>
+                                        <input class="form-control py-4" id="txtProvider" type="text" placeholder="Enter Provider" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="txtFacultyID">Faculty ID</label>
+                                        <input class="form-control py-4" id="txtFacultyID" type="text" placeholder="Enter Faculty ID" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="txtCourseCode">Course Code</label>
+                                        <input class="form-control py-4" id="txtCourseCode" type="text" placeholder="Enter Course Code" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="txtCourseCredit">Course Credit</label>
+                                        <input class="form-control py-4" id="txtCourseCredit" type="text" placeholder="Enter Course Credit" />
+                                    </div>
+                                    <div class="form-group mt-4 mb-0">
+                                    <a id="btnSubmit" class="btn btn-primary btn-block" href="javascript:void(0)">Submit</a>
+                                    <button id="btnDisabled" style="display:none" class="btn btn-primary btn-block" type="button" disabled>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Saving...
+                                    </button>
+                                    </div>
+                                </form>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>    
+</div>
+
+<script type="text/javascript">
+    $("#btnSubmit").click(function () {
+        $("#divError").hide();
+        $("#divSuccess").hide();
+        $("#spanMasterScheduleId").val('');
+        $("#spanMasterScheduleId").val('');
+
+        $("#btnSubmit").hide();
+        $("#btnDisabled").show();
+
+        var txtStudentId = $("#txtStudentId");
+        var txtProvider = $("#txtProvider");
+        var txtFacultyID = $("#txtFacultyID");
+        var txtCourseCode = $("#txtCourseCode");
+        var txtCourseCredit = $("#txtCourseCredit");
+        var formData = {
+            'StudentID': txtStudentId.val(),
+            'Provider': txtProvider.val(),
+            'FacultyID': txtFacultyID.val(),
+            'CourseCode': txtCourseCode.val(),
+            'CourseCredit': txtCourseCredit.val(),
+        };
+        var urlAction = '@Url.Action("SaveStudentInfo", "Home")';
+        $.ajax({
+            type: "POST",
+            url: urlAction,
+            data: JSON.stringify(formData),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.returnValue == -501) {
+                    $("#divError").html('Something went wrong! Please check data and try again.');
+                    $("#divError").show();
+                } else if (result.returnValue == -101) {
+                    $("#divError").html('Student doesnot exists.');
+                    $("#divError").show();
+                } else {
+                    $("#divSuccess").show();
+                    $("#spanMasterScheduleId").val(result.masterScheduleId);
+                    $("#spanMasterScheduleId").val(result.studentScheduleId);
+                    txtStudentId.val("");
+                    txtProvider.val("");
+                    txtFacultyID.val("");
+                    txtCourseCode.val("");
+                    txtCourseCredit.val("");
+                }
+                $("#btnSubmit").show();
+                $("#btnDisabled").hide();
+            },
+            error: function (result) {
+                $("#divError").html('Something went wrong! Please try again.');
+                $("#divError").show();
+                $("#btnSubmit").show();
+                $("#btnDisabled").hide();
+            }
+        });
+    });
+
+</script>
